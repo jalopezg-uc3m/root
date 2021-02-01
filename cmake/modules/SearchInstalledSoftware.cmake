@@ -1190,7 +1190,10 @@ if (uring)
 endif()
 
 #---Check for DAOS----------------------------------------------------------------
-if (daos)
+if (daos AND daos_mock)
+  message(FATAL_ERROR "Options `daos` and `daos_mock` are mutually exclusive; only one of them should be specified.")
+endif()
+if (daos OR daos_mock)
   message(STATUS "Looking for DAOS")
   if(fail-on-missing)
     find_package(DAOS REQUIRED)
