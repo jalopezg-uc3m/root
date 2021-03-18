@@ -58,6 +58,8 @@ public:
   */
 template <typename DKeyT, typename AKeyT>
 class RDaosObject {
+public:
+   static daos_oclass_id_t kDefaultObjectClass;
 private:
    daos_handle_t fObjectHandle;
 
@@ -96,7 +98,7 @@ public:
    };
 
    RDaosObject() = delete;
-   RDaosObject(RDaosContainer &container, daos_obj_id_t oid, daos_oclass_id_t cid = OC_RP_XSF);
+   RDaosObject(RDaosContainer &container, daos_obj_id_t oid, daos_oclass_id_t cid = kDefaultObjectClass);
    ~RDaosObject();
 
    int Fetch(FetchUpdateArgs &args);

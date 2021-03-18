@@ -15,6 +15,7 @@
 
 #include <ROOT/RDaos.hxx>
 
+#include <iostream>
 #include <numeric>
 #include <stdexcept>
 
@@ -65,6 +66,9 @@ ROOT::Experimental::Detail::RDaosObject<DKeyT, AKeyT>::FetchUpdateArgs::FetchUpd
    fSgls[0].sg_nr = fIovs.size();
    fSgls[0].sg_iovs = fIovs.data();
 }
+
+template <typename DKeyT, typename AKeyT>
+daos_oclass_id_t ROOT::Experimental::Detail::RDaosObject<DKeyT, AKeyT>::kDefaultObjectClass = OC_RP_XSF;
 
 template <typename DKeyT, typename AKeyT>
 ROOT::Experimental::Detail::RDaosObject<DKeyT, AKeyT>::RDaosObject(RDaosContainer &container, daos_obj_id_t oid,
@@ -166,3 +170,21 @@ static struct RDaosRAII {
 
 // Explicit instantiations of `RDaosObject` for specific dkey/akey types
 template class ROOT::Experimental::Detail::RDaosObject<uint64_t, uint64_t>;
+
+
+// HACK: allow the user to specify a different value for `kDefaultObjectClass`
+// via an environment variable.
+static void __attribute__((constructor)) __RDaos_cxx__ctor() {
+   auto v = std::getenv("RNTUPLE_DAOS_OCLASS");
+   if (!v)
+      return;
+
+   if (strcmp(v, "OC_RP_XSF") == 0) {
+      std::cerr << "kDefaultObjectClass = OC_RP_XSF\n";
+      ROOT::Experimental::Detail::RDaosObject<uint64_t, uint64_t>::kDefaultObjectClass = OC_RP_XSF;
+   }
+   if (strcmp(v, "OC_SX") == 0) {
+      std::cerr << "kDefaultObjectClass = OC_SX\n";
+      ROOT::Experimental::Detail::RDaosObject<uint64_t, uint64_t>::kDefaultObjectClass = OC_SX;
+   }
+}

@@ -27,6 +27,7 @@
 #include <TROOT.h> // for IsImplicitMTEnabled()
 
 #include <algorithm>
+#include <cstdlib>
 #include <exception>
 #include <functional>
 #include <iomanip>
@@ -245,6 +246,19 @@ void ROOT::Experimental::RNTupleReader::Show(NTupleSize_t index, const ENTupleSh
 
 //------------------------------------------------------------------------------
 
+
+// HACK: allow the user to specify a different value for `kDefaultClusterSizeEntries`
+// via an environment variable.
+ROOT::Experimental::NTupleSize_t ROOT::Experimental::RNTupleWriter::kDefaultClusterSizeEntries = 64000;
+
+static void __attribute__((constructor)) __RNTuple_cxx__ctor() {
+   if (auto v = std::getenv("RNTUPLE_CLUSTER_SIZE")) {
+      int clusterSize = std::atoi(v);
+      std::cerr << "kDefaultClusterSizeEntries = " << clusterSize
+                << " (was " << ROOT::Experimental::RNTupleWriter::kDefaultClusterSizeEntries << ")\n";
+      ROOT::Experimental::RNTupleWriter::kDefaultClusterSizeEntries = clusterSize;
+   }
+}
 
 ROOT::Experimental::RNTupleWriter::RNTupleWriter(
    std::unique_ptr<ROOT::Experimental::RNTupleModel> model,

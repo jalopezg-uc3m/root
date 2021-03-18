@@ -72,6 +72,19 @@ static constexpr daos_obj_id_t kOidFooter{std::uint64_t(-3), 0};
 ////////////////////////////////////////////////////////////////////////////////
 
 
+// HACK: allow the user to specify a different value for `kDefaultElementsPerPage`
+// via an environment variable.
+std::size_t ROOT::Experimental::Detail::RPageSinkDaos::kDefaultElementsPerPage = 10000;
+
+static void __attribute__((constructor)) __RPageStorageDaos_cxx__ctor() {
+   if (auto v = std::getenv("RNTUPLE_ELTS_PER_PAGE")) {
+      int eltsPerPage = std::atoi(v);
+      std::cerr << "kDefaultElementsPerPage = " << eltsPerPage
+                << " (was " << ROOT::Experimental::Detail::RPageSinkDaos::kDefaultElementsPerPage << ")\n";
+      ROOT::Experimental::Detail::RPageSinkDaos::kDefaultElementsPerPage = eltsPerPage;
+   }
+}
+
 ROOT::Experimental::Detail::RPageSinkDaos::RPageSinkDaos(std::string_view ntupleName, std::string_view locator,
    const RNTupleWriteOptions &options)
    : RPageSink(ntupleName, options)

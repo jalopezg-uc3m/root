@@ -206,8 +206,9 @@ triggered by Flush() or by destructing the ntuple.  On I/O errors, an exception 
 */
 // clang-format on
 class RNTupleWriter {
+public:
+   static NTupleSize_t kDefaultClusterSizeEntries;
 private:
-   static constexpr NTupleSize_t kDefaultClusterSizeEntries = 64000;
    std::unique_ptr<Detail::RPageSink> fSink;
    /// Needs to be destructed before fSink
    std::unique_ptr<RNTupleModel> fModel;
